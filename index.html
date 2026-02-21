@@ -153,6 +153,34 @@
             z-index: 1;
         }
 
+        /* 提示消息（Toast） */
+        .toast {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid rgba(59, 130, 246, 0.5);
+            color: white;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 1em;
+            z-index: 20000;
+            display: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            backdrop-filter: blur(10px);
+            animation: toastIn 0.3s ease;
+        }
+
+        @keyframes toastIn {
+            from { opacity: 0; transform: translate(-50%, -40%); }
+            to { opacity: 1; transform: translate(-50%, -50%); }
+        }
+
+        .toast.show {
+            display: block;
+        }
+
         /* 本周海域订阅 */
         .weekly-ocean {
             background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(245,158,11,0.1));
@@ -560,6 +588,14 @@
             border: 1px solid rgba(255,255,255,0.1);
         }
 
+        .selector-title {
+            font-size: 1em;
+            margin-bottom: 10px;
+            color: #94a3b8;
+        }
+
+        .wave-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
+        
         .wave-btn {
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.2);
@@ -588,9 +624,13 @@
             cursor: pointer;
             font-size: 0.9em;
             position: relative;
+            transition: all 0.3s;
         }
 
-        .time-btn.active { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .time-btn.active { 
+            background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); 
+            border-color: #3b82f6;
+        }
 
         .free-badge {
             position: absolute;
@@ -601,6 +641,7 @@
             font-size: 0.6em;
             padding: 2px 6px;
             border-radius: 10px;
+            font-weight: bold;
         }
 
         .premium-badge {
@@ -612,6 +653,7 @@
             font-size: 0.6em;
             padding: 2px 6px;
             border-radius: 10px;
+            font-weight: bold;
         }
 
         .player-controls {
@@ -654,6 +696,16 @@
             font-size: 1.2em;
             font-weight: 600;
             box-shadow: 0 0 20px rgba(59,130,246,0.4);
+            transition: all 0.3s;
+        }
+
+        .play-btn-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 25px rgba(59,130,246,0.6);
+        }
+
+        .play-btn-main:active {
+            transform: translateY(0);
         }
 
         .timer-big { font-size: 3em; text-align: center; margin-bottom: 15px; font-weight: 300; letter-spacing: 2px; font-family: monospace; }
@@ -667,6 +719,12 @@
             color: white;
             cursor: pointer;
             font-size: 1.2em;
+            transition: all 0.3s;
+        }
+
+        .btn-circle:hover {
+            background: rgba(255,255,255,0.2);
+            transform: scale(1.1);
         }
 
         .btn-play-big {
@@ -677,6 +735,12 @@
             font-size: 1.8em;
             cursor: pointer;
             box-shadow: 0 0 20px rgba(59,130,246,0.5);
+            transition: all 0.3s;
+        }
+
+        .btn-play-big:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(59,130,246,0.7);
         }
 
         .volume-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
@@ -732,12 +796,22 @@
             padding: 15px;
             cursor: pointer;
             position: relative;
+            transition: all 0.3s;
+        }
+
+        .price-card:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateX(5px);
         }
 
         .price-card.recommended { border-color: #fbbf24; }
         .price-tag { position: absolute; top: -10px; right: 10px; background: #ef4444; color: white; font-size: 0.7em; padding: 3px 8px; border-radius: 10px; }
         .price-amount { font-size: 1.8em; font-weight: bold; color: #fbbf24; }
-        .btn-close-modal { width: 100%; background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px; border-radius: 10px; cursor: pointer; margin-top: 15px; }
+        .btn-close-modal { width: 100%; background: transparent; color: white; border: 1px solid rgba(255,255,255,0.3); padding: 12px; border-radius: 10px; cursor: pointer; margin-top: 15px; transition: all 0.3s; }
+        
+        .btn-close-modal:hover {
+            background: rgba(255,255,255,0.1);
+        }
 
         #feedback-btn {
             position: fixed;
@@ -759,13 +833,23 @@
             cursor: pointer;
         }
 
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(59,130,246,0.5); }
+            50% { transform: scale(1.05); box-shadow: 0 0 30px rgba(59,130,246,0.8); }
+        }
+
         @media (max-width: 480px) {
             h1 { font-size: 1.5em; }
             .lang-btn { padding: 6px 10px; font-size: 0.75em; }
+            .scene-grid { gap: 8px; }
+            .scene-card { padding: 15px 10px; }
         }
     </style>
 </head>
 <body>
+    <!-- 提示消息 -->
+    <div class="toast" id="toast"></div>
+
     <!-- 海浪动画背景 -->
     <div class="ocean-waves">
         <div class="wave"></div>
@@ -823,7 +907,7 @@
         <!-- 海域选择 -->
         <div class="ocean-selector">
             <div class="selector-title" id="oceanSelectorTitle">🌊 选择海域风格</div>
-            <div class="wave-options" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px;">
+            <div class="wave-options">
                 <button class="wave-btn active" onclick="selectOcean('mediterranean')">
                     <span style="font-size: 2em;">🌅</span>
                     <div style="font-size: 0.9em; margin-top: 5px;" id="ocean1Name">地中海</div>
@@ -841,7 +925,7 @@
 
         <!-- 时段选择 -->
         <div class="timer-selector">
-            <div class="timer-title" id="timerTitle" style="margin-bottom: 15px;">⏱️ 选择放松时长</div>
+            <div class="selector-title" id="timerTitle">⏱️ 选择放松时长</div>
             <div class="timer-options">
                 <button class="time-btn active" onclick="selectTimer(15, false)">
                     <span id="min15">15分钟</span>
@@ -907,10 +991,9 @@
             <div class="status-box" id="statusBox">
                 <div id="currentStatus">当前：地中海 + 焦虑急救 + 普通话 + 15分钟（免费）</div>
             </div>
-            <div class="now-playing" id="nowPlaying" style="display:none;">
+            <div class="now-playing" id="nowPlaying" style="display:none; font-size: 0.9em; color: #60a5fa; margin-bottom: 10px;">
                 🎵 <span id="trackInfo">正在加载...</span>
             </div>
-            <div class="debug-info" id="debugInfo" style="display: none;"></div>
             <button class="play-btn-main" id="mainPlayBtn" onclick="toggleMainPlay()">
                 <span id="startBtnText">▶️ 开始放松</span>
             </button>
@@ -921,9 +1004,9 @@
     <div class="player-controls">
         <div class="timer-big" id="timerDisplay">15:00</div>
         <div class="controls-row">
-            <button class="btn-circle" onclick="stopAll()" title="Stop">⏹</button>
+            <button class="btn-circle" onclick="stopAll()" title="停止">⏹</button>
             <button class="btn-play-big" id="playPauseBtn" onclick="togglePlay()">▶</button>
-            <button class="btn-circle" onclick="toggleMute()" title="Mute" id="muteBtn">🔊</button>
+            <button class="btn-circle" onclick="toggleMute()" title="静音" id="muteBtn">🔊</button>
         </div>
         <div class="volume-grid">
             <div class="vol-item">
@@ -1041,7 +1124,7 @@
                 scene3: "睡前助眠", scene3Duration: "3-5分钟语音",
                 scene4: "午休小憩", scene4Duration: "3分钟语音",
                 instant: "即时",
-                currentStatus: "当前：地中海 + 焦虑急救 + 普通话 + 15分钟（免费）",
+                currentStatus: "当前：{ocean} + {scene} + 普通话 + {timer}分钟（{type}）",
                 startBtn: "▶️ 开始放松", pauseBtn: "⏸️ 暂停", continueBtn: "▶️ 继续",
                 volPiano: "🎹 钢琴", volWave: "🌊 海浪", volVoice: "🎙️ 语音",
                 vizTitle: "🎹 VIP琴谱可视化 - 实时演奏",
@@ -1062,7 +1145,8 @@
                 joinBtn: "加入", roomCodeLabel: "房间号", syncText: "等待对方加入...",
                 exitBtn: "退出房间", saveCardBtn: "保存图片",
                 shareCardTitle: "专注时刻", weekFocus: "本周累计专注",
-                cardQR: "扫码一起听海", perMin: "分钟"
+                cardQR: "扫码一起听海", perMin: "分钟",
+                switchScene: "已切换至：{scene}", switchOcean: "已切换至：{ocean}", switchLang: "已切换至：{lang}"
             },
             hk: {
                 appName: "鋼琴海", subtitle: "聽見海洋的呼吸",
@@ -1074,9 +1158,9 @@
                 scene1: "焦慮急救", scene1Duration: "2-3分鐘語音",
                 scene2: "靜心專注", scene2Duration: "1分鐘語音",
                 scene3: "睡前助眠", scene3Duration: "3-5分鐘語音",
-                scene4: "午休小憩", scene4Duration: "3分鐘語音",
+                scene4: "午休小憩", scene3Duration: "3分鐘語音",
                 instant: "即時",
-                currentStatus: "當前：地中海 + 焦慮急救 + 粵語 + 15分鐘（免費）",
+                currentStatus: "當前：{ocean} + {scene} + 粵語 + {timer}分鐘（{type}）",
                 startBtn: "▶️ 開始放鬆", pauseBtn: "⏸️ 暫停", continueBtn: "▶️ 繼續",
                 volPiano: "🎹 鋼琴", volWave: "🌊 海浪", volVoice: "🎙️ 語音",
                 vizTitle: "🎹 VIP琴譜可視化 - 實時演奏",
@@ -1097,7 +1181,8 @@
                 joinBtn: "加入", roomCodeLabel: "房間號", syncText: "等待對方加入...",
                 exitBtn: "退出房間", saveCardBtn: "保存圖片",
                 shareCardTitle: "專注時刻", weekFocus: "本週累計專注",
-                cardQR: "掃碼一起聽海", perMin: "分鐘"
+                cardQR: "掃碼一起聽海", perMin: "分鐘",
+                switchScene: "已切換至：{scene}", switchOcean: "已切換至：{ocean}", switchLang: "已切換至：{lang}"
             },
             en: {
                 appName: "Piano Sea", subtitle: "Hear the Ocean's Breath",
@@ -1111,7 +1196,7 @@
                 scene3: "Deep Sleep", scene3Duration: "3-5 min voice",
                 scene4: "Power Nap", scene4Duration: "3 min voice",
                 instant: "INSTANT",
-                currentStatus: "Current: Mediterranean + Anxiety Relief + English + 15min (Free)",
+                currentStatus: "Current: {ocean} + {scene} + English + {timer}min ({type})",
                 startBtn: "▶️ Start Relaxing", pauseBtn: "⏸️ Pause", continueBtn: "▶️ Continue",
                 volPiano: "🎹 Piano", volWave: "🌊 Waves", volVoice: "🎙️ Voice",
                 vizTitle: "🎹 VIP Piano Visualization - Live Playing",
@@ -1132,7 +1217,8 @@
                 joinBtn: "Join", roomCodeLabel: "Room Code", syncText: "Waiting for partner...",
                 exitBtn: "Exit Room", saveCardBtn: "Save Image",
                 shareCardTitle: "Focus Moment", weekFocus: "Weekly Focus Time",
-                cardQR: "Scan to listen together", perMin: "min"
+                cardQR: "Scan to listen together", perMin: "min",
+                switchScene: "Switched to: {scene}", switchOcean: "Switched to: {ocean}", switchLang: "Switched to: {lang}"
             },
             es: {
                 appName: "Piano Mar", subtitle: "Escucha el Respiro del Océano",
@@ -1146,7 +1232,7 @@
                 scene3: "Sueño Profundo", scene3Duration: "3-5 min voz",
                 scene4: "Siesta", scene4Duration: "3 min voz",
                 instant: "INSTANT",
-                currentStatus: "Actual: Mediterráneo + Alivio + Español + 15min (Gratis)",
+                currentStatus: "Actual: {ocean} + {scene} + Español + {timer}min (Gratis)",
                 startBtn: "▶️ Empezar", pauseBtn: "⏸️ Pausa", continueBtn: "▶️ Continuar",
                 volPiano: "🎹 Piano", volWave: "🌊 Olas", volVoice: "🎙️ Voz",
                 vizTitle: "🎹 Visualización VIP - Reproducción en Vivo",
@@ -1167,7 +1253,8 @@
                 joinBtn: "Unirse", roomCodeLabel: "Código", syncText: "Esperando compañero...",
                 exitBtn: "Salir", saveCardBtn: "Guardar Imagen",
                 shareCardTitle: "Momento de Enfoque", weekFocus: "Tiempo Semanal",
-                cardQR: "Escanea para escuchar juntos", perMin: "min"
+                cardQR: "Escanea para escuchar juntos", perMin: "min",
+                switchScene: "Cambiado a: {scene}", switchOcean: "Cambiado a: {ocean}", switchLang: "Cambiado a: {lang}"
             },
             ar: {
                 appName: "بيانو سي", subtitle: "استمع إلى أنفاس المحيط",
@@ -1181,7 +1268,7 @@
                 scene3: "نوم عميق", scene3Duration: "3-5 د صوت",
                 scene4: "قيلولة", scene4Duration: "3 د صوت",
                 instant: "فوري",
-                currentStatus: "الحالي: المتوسط + تخفيف القلق + العربية + 15د (مجاني)",
+                currentStatus: "الحالي: {ocean} + {scene} + العربية + {timer}د (مجاني)",
                 startBtn: "▶️ ابدأ الاسترخاء", pauseBtn: "⏸️ إيقاف مؤقت", continueBtn: "▶️ استمرار",
                 volPiano: "🎹 بيانو", volWave: "🌊 أمواج", volVoice: "🎙️ صوت",
                 vizTitle: "🎹 تصور VIP - العزف المباشر",
@@ -1202,7 +1289,8 @@
                 joinBtn: "انضمام", roomCodeLabel: "رمز الغرفة", syncText: "في انتظار الشريك...",
                 exitBtn: "خروج", saveCardBtn: "حفظ الصورة",
                 shareCardTitle: "لحظة التركيز", weekFocus: "الوقت الأسبوعي",
-                cardQR: "امسح للاستماع معاً", perMin: "د"
+                cardQR: "امسح للاستماع معاً", perMin: "د",
+                switchScene: "تم التبديل إلى: {scene}", switchOcean: "تم التبديل إلى: {ocean}", switchLang: "تم التبديل إلى: {lang}"
             }
         };
 
@@ -1246,7 +1334,8 @@
             isVip: false,
             dailyPlays: 0,
             roomCode: null,
-            totalFocusTime: 0
+            totalFocusTime: 0,
+            visualizerInterval: null
         };
 
         let audioPlayers = { piano: null, wave: null, voice: null };
@@ -1274,6 +1363,14 @@
             audioPlayers.piano.volume = 0.6;
             audioPlayers.wave.volume = 0.5;
             audioPlayers.voice.volume = 0.8;
+
+            // 语音播放完毕后自动重播（如果需要循环）
+            audioPlayers.voice.addEventListener('ended', () => {
+                if(current.isPlaying && !current.isPaused) {
+                    audioPlayers.voice.currentTime = 0;
+                    audioPlayers.voice.play().catch(e => console.log(e));
+                }
+            });
         }
 
         function initPianoVisualizer() {
@@ -1295,8 +1392,23 @@
             });
         }
 
+        function startVisualizer() {
+            if(current.visualizerInterval) clearInterval(current.visualizerInterval);
+            current.visualizerInterval = setInterval(() => {
+                if(current.isVip && current.isPlaying && !current.isPaused) {
+                    animatePiano();
+                }
+            }, 500);
+        }
+
+        function stopVisualizer() {
+            if(current.visualizerInterval) {
+                clearInterval(current.visualizerInterval);
+                current.visualizerInterval = null;
+            }
+        }
+
         function animatePiano() {
-            if(!current.isVip || !current.isPlaying) return;
             const randomKey = Math.floor(Math.random() * 14);
             const key = document.getElementById(`key-${randomKey}`);
             if(key) {
@@ -1342,28 +1454,224 @@
             const ocean = weeklyOceans[weekNum];
             const t = translations[current.lang];
             document.getElementById('weeklyTitle').textContent = t.weeklyTitle;
-            document.getElementById('weeklySub').textContent = current.isVip ? t.weeklySub.replace("升级VIP解锁", "已解锁") : t.weeklySub;
+            document.getElementById('weeklySub').textContent = current.isVip ? t.weeklySub.replace("升级VIP解锁", "已解锁").replace("Upgrade VIP", "Unlocked") : t.weeklySub;
         }
 
         function showWeeklyDetail() {
             const t = translations[current.lang];
             if(!current.isVip) {
-                alert(t.weeklySub);
+                showToast(t.weeklySub);
                 document.getElementById('premiumModal').style.display = 'flex';
             }
         }
 
-        // 语言切换函数（已修复音频切换BUG）
+        // 显示提示消息
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // 【修复】语言切换 - 播放中也可无缝切换
         function changeLang(lang) {
+            if(current.lang === lang) return;
+            
             current.lang = lang;
             
             // 更新按钮状态
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // 更新所有文本
-            const t = translations[lang];
-            document.getElementById('mainTitle').innerHTML = `${t.appName} <span style="font-size: 0.6em; opacity: 0.7;">${lang === 'zh' || lang === 'hk' ? 'Piano Sea' : ''}</span>`;
+            // 更新所有UI文本
+            updateAllUI();
+            
+            // 【关键修复】如果正在播放，无缝切换语音
+            if(current.isPlaying && !current.isPaused) {
+                const newVoiceFile = audioConfig.voices[current.scene][current.lang];
+                
+                // 保存当前播放进度
+                const currentTime = audioPlayers.voice.currentTime;
+                
+                // 切换语音源
+                audioPlayers.voice.src = newVoiceFile;
+                audioPlayers.voice.load();
+                
+                // 尝试从相近位置继续播放（如果新语音长度允许）
+                audioPlayers.voice.addEventListener('loadedmetadata', function onLoaded() {
+                    if(currentTime < audioPlayers.voice.duration) {
+                        audioPlayers.voice.currentTime = currentTime;
+                    }
+                    audioPlayers.voice.play().catch(e => console.log('语音切换播放失败:', e));
+                    audioPlayers.voice.removeEventListener('loadedmetadata', onLoaded);
+                });
+                
+                // 显示切换提示
+                const langNames = { zh: '普通话', hk: '粤语', en: 'English', es: 'Español', ar: 'العربية' };
+                showToast(translations[lang].switchLang.replace('{lang}', langNames[lang]));
+            }
+            
+            // 阿拉伯语RTL支持
+            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
+        }
+
+        // 【修复】场景切换 - 播放中也可无缝切换
+        function selectScene(scene) {
+            if(current.scene === scene) return;
+            
+            const oldScene = current.scene;
+            current.scene = scene;
+            
+            // 更新UI
+            const scenes = ['anxiety', 'focus', 'sleep', 'nap'];
+            document.querySelectorAll('.scene-card').forEach((card, idx) => {
+                card.classList.toggle('active', scenes[idx] === scene);
+                const badge = card.querySelector('.instant-badge');
+                if(badge) badge.style.display = idx === 0 ? 'block' : 'none';
+            });
+            
+            // 【关键修复】如果正在播放，无缝切换音频
+            if(current.isPlaying && !current.isPaused) {
+                // 随机选择新场景的钢琴曲
+                current.currentPianoIndex = Math.floor(Math.random() * 3);
+                const newPianoFile = audioConfig.piano[scene][current.currentPianoIndex];
+                const newVoiceFile = audioConfig.voices[scene][current.lang];
+                
+                // 交叉淡入淡出效果
+                const fadeOut = setInterval(() => {
+                    if(audioPlayers.piano.volume > 0.1) {
+                        audioPlayers.piano.volume -= 0.1;
+                        audioPlayers.voice.volume -= 0.1;
+                    } else {
+                        clearInterval(fadeOut);
+                        
+                        // 切换源
+                        audioPlayers.piano.src = newPianoFile;
+                        audioPlayers.voice.src = newVoiceFile;
+                        
+                        // 恢复音量并播放
+                        audioPlayers.piano.load();
+                        audioPlayers.voice.load();
+                        
+                        audioPlayers.piano.play().catch(e => console.log(e));
+                        audioPlayers.voice.play().catch(e => console.log(e));
+                        
+                        // 恢复音量设置
+                        const pianoVol = document.getElementById('volPiano').value / 100;
+                        const voiceVol = document.getElementById('volVoice').value / 100;
+                        
+                        let fadeIn = setInterval(() => {
+                            if(audioPlayers.piano.volume < pianoVol) {
+                                audioPlayers.piano.volume += 0.1;
+                            }
+                            if(audioPlayers.voice.volume < voiceVol) {
+                                audioPlayers.voice.volume += 0.1;
+                            }
+                            if(audioPlayers.piano.volume >= pianoVol && audioPlayers.voice.volume >= voiceVol) {
+                                clearInterval(fadeIn);
+                            }
+                        }, 50);
+                    }
+                }, 50);
+                
+                // 更新显示
+                document.getElementById('trackInfo').textContent = 
+                    `${translations[current.lang]['scene' + (scenes.indexOf(scene) + 1)]} - ${newPianoFile.split('/').pop()}`;
+                
+                // 显示切换提示
+                showToast(translations[current.lang].switchScene.replace('{scene}', translations[current.lang]['scene' + (scenes.indexOf(scene) + 1)]));
+            } else {
+                // 未播放时也更新钢琴曲索引
+                current.currentPianoIndex = Math.floor(Math.random() * 3);
+            }
+            
+            updateStatus();
+            
+            if(current.isVip) {
+                document.getElementById('pianoVisualizer').classList.add('show');
+            }
+        }
+
+        // 【修复】海域切换 - 播放中也可无缝切换
+        function selectOcean(ocean) {
+            if(current.ocean === ocean) return;
+            
+            current.ocean = ocean;
+            
+            // 更新UI
+            document.querySelectorAll('.wave-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // 【关键修复】如果正在播放，实时切换海浪声音
+            if(current.isPlaying && !current.isPaused) {
+                const newWaveFile = audioConfig.oceans[ocean];
+                const oldVolume = audioPlayers.wave.volume;
+                
+                // 淡出旧海浪
+                let fadeOut = setInterval(() => {
+                    if(audioPlayers.wave.volume > 0.1) {
+                        audioPlayers.wave.volume -= 0.1;
+                    } else {
+                        clearInterval(fadeOut);
+                        
+                        // 切换并播放新海浪
+                        audioPlayers.wave.src = newWaveFile;
+                        audioPlayers.wave.load();
+                        audioPlayers.wave.play().catch(e => console.log(e));
+                        
+                        // 淡入
+                        let fadeIn = setInterval(() => {
+                            if(audioPlayers.wave.volume < oldVolume) {
+                                audioPlayers.wave.volume += 0.1;
+                            } else {
+                                clearInterval(fadeIn);
+                            }
+                        }, 50);
+                    }
+                }, 50);
+                
+                // 显示切换提示
+                const oceanNames = { 
+                    mediterranean: translations[current.lang].ocean1,
+                    atlantic: translations[current.lang].ocean2,
+                    pacific: translations[current.lang].ocean3
+                };
+                showToast(translations[current.lang].switchOcean.replace('{ocean}', oceanNames[ocean]));
+            }
+            
+            updateStatus();
+        }
+
+        // 【修复】计时器切换 - 支持播放中切换
+        function selectTimer(minutes, isPremium) {
+            if(isPremium && !current.isVip) {
+                document.getElementById('premiumModal').style.display = 'flex';
+                return;
+            }
+            
+            // 更新选中状态
+            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+            
+            // 计算时间差
+            const oldTime = current.timeLeft;
+            current.timer = minutes;
+            current.timeLeft = minutes * 60;
+            
+            // 如果正在播放，提示用户时间已更新
+            if(current.isPlaying && !current.isPaused) {
+                showToast(`${translations[current.lang].timerTitle.replace('⏱️ ', '')}: ${minutes}${translations[current.lang].perMin}`);
+            }
+            
+            updateTimerDisplay();
+            updateStatus();
+        }
+
+        function updateAllUI() {
+            const t = translations[current.lang];
+            document.getElementById('mainTitle').innerHTML = `${t.appName} <span style="font-size: 0.6em; opacity: 0.7;">${current.lang === 'zh' || current.lang === 'hk' ? 'Piano Sea' : ''}</span>`;
             document.getElementById('subTitle').textContent = t.subtitle;
             document.getElementById('weeklyTitle').textContent = t.weeklyTitle;
             document.getElementById('weeklySub').textContent = current.isVip ? t.weeklySub.replace("升级VIP解锁", "已解锁").replace("Upgrade VIP", "Unlocked") : t.weeklySub;
@@ -1388,7 +1696,6 @@
             document.getElementById('scene4Name').textContent = t.scene4;
             document.getElementById('scene4Duration').textContent = t.scene4Duration;
             
-            // 更新即时标签
             document.querySelectorAll('.instant-badge').forEach((badge, idx) => {
                 badge.textContent = t.instant;
                 badge.style.display = idx === 0 ? 'block' : 'none';
@@ -1401,7 +1708,7 @@
             updateStatus();
             updatePlayButtonUI();
             
-            // 更新VIP弹窗
+            // VIP弹窗
             document.getElementById('vipTitle').textContent = t.vipTitle;
             document.getElementById('vipSubtitle').textContent = t.vipSubtitle;
             document.getElementById('monthlyText').textContent = t.monthly;
@@ -1424,11 +1731,9 @@
             document.getElementById('priceYear').textContent = t.priceYear;
             document.getElementById('pricePermanent').textContent = t.pricePermanent;
             
-            // 更新限制提示
             document.querySelector('.limit-title').textContent = t.limitTitle;
             document.querySelector('.limit-text').textContent = t.limitText;
             
-            // 更新双人模式
             document.getElementById('dualTitle').textContent = t.dualTitle;
             document.getElementById('dualDesc').textContent = t.dualDesc;
             document.getElementById('createRoomBtn').textContent = t.createRoomBtn;
@@ -1439,57 +1744,11 @@
             document.getElementById('exitBtn').textContent = t.exitBtn;
             document.getElementById('saveCardBtn').textContent = t.saveCardBtn;
             
-            // 更新分享卡片
             document.getElementById('cardQR').textContent = t.cardQR;
             
-            // 更新音量标签
             document.getElementById('volPianoLabel').textContent = t.volPiano;
             document.getElementById('volWaveLabel').textContent = t.volWave;
             document.getElementById('volVoiceLabel').textContent = t.volVoice;
-            
-            // 阿拉伯语RTL支持
-            document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
-            
-            // 【关键修复】如果正在播放，强制切换语音音频
-            if(current.isPlaying) {
-                // 立即停止当前语音
-                audioPlayers.voice.pause();
-                audioPlayers.voice.currentTime = 0;
-                
-                // 更新为新语言的语音文件
-                const newVoiceFile = audioConfig.voices[current.scene][current.lang];
-                audioPlayers.voice.src = newVoiceFile;
-                
-                // 重新加载并播放
-                audioPlayers.voice.load();
-                audioPlayers.voice.play().catch(e => {
-                    console.log('语音切换播放失败:', e);
-                });
-                
-                console.log('已切换语音:', newVoiceFile);
-            }
-        }
-
-        function selectScene(scene) {
-            current.scene = scene;
-            const scenes = ['anxiety', 'focus', 'sleep', 'nap'];
-            document.querySelectorAll('.scene-card').forEach((card, idx) => {
-                card.classList.toggle('active', scenes[idx] === scene);
-                const badge = card.querySelector('.instant-badge');
-                if(badge) badge.style.display = idx === 0 ? 'block' : 'none';
-            });
-            updateStatus();
-            current.currentPianoIndex = Math.floor(Math.random() * 3);
-            if(current.isVip) {
-                document.getElementById('pianoVisualizer').classList.add('show');
-            }
-        }
-
-        function selectOcean(ocean) {
-            current.ocean = ocean;
-            document.querySelectorAll('.wave-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            updateStatus();
         }
 
         function updateStatus() {
@@ -1497,8 +1756,14 @@
             const oceanNames = { mediterranean: t.ocean1, atlantic: t.ocean2, pacific: t.ocean3 };
             const sceneNames = { anxiety: t.scene1, focus: t.scene2, sleep: t.scene3, nap: t.scene4 };
             const type = current.timer === 15 ? t.free : 'VIP';
-            document.getElementById('currentStatus').textContent = 
-                `${t.currentStatus.split('+')[0]}+ ${sceneNames[current.scene]} + ${current.lang === 'zh' ? '普通话' : current.lang === 'hk' ? '粵語' : 'English'} + ${current.timer}${t.perMin || '分钟'}（${type}）`;
+            
+            let status = t.currentStatus;
+            status = status.replace('{ocean}', oceanNames[current.ocean]);
+            status = status.replace('{scene}', sceneNames[current.scene]);
+            status = status.replace('{timer}', current.timer);
+            status = status.replace('{type}', type);
+            
+            document.getElementById('currentStatus').textContent = status;
         }
 
         async function toggleMainPlay() {
@@ -1507,7 +1772,7 @@
             } else {
                 if(!current.isVip && current.dailyPlays >= 3) {
                     const t = translations[current.lang];
-                    alert(t.limitText);
+                    showToast(t.limitText);
                     document.getElementById('premiumModal').style.display = 'flex';
                     return;
                 }
@@ -1517,7 +1782,7 @@
         }
 
         async function startPlaying() {
-            // 设置音频源（使用当前语言）
+            // 设置音频源
             audioPlayers.piano.src = audioConfig.piano[current.scene][current.currentPianoIndex];
             audioPlayers.wave.src = audioConfig.oceans[current.ocean];
             audioPlayers.voice.src = audioConfig.voices[current.scene][current.lang];
@@ -1525,20 +1790,25 @@
             current.isPlaying = true;
             current.isPaused = false;
             
-            await Promise.all([
-                audioPlayers.piano.play().catch(e => console.log(e)),
-                audioPlayers.wave.play().catch(e => console.log(e)),
-                audioPlayers.voice.play().catch(e => console.log(e))
-            ]);
+            try {
+                await Promise.all([
+                    audioPlayers.piano.play(),
+                    audioPlayers.wave.play(),
+                    audioPlayers.voice.play()
+                ]);
+            } catch(e) {
+                console.log('音频播放失败:', e);
+            }
             
             startTimer();
+            startVisualizer();
             updatePlayButtonUI();
             document.getElementById('nowPlaying').style.display = 'block';
-            document.getElementById('trackInfo').textContent = `${translations[current.lang].scene1} - ${audioConfig.piano[current.scene][current.currentPianoIndex].split('/').pop()}`;
+            document.getElementById('trackInfo').textContent = 
+                `${translations[current.lang].scene1} - ${audioConfig.piano[current.scene][current.currentPianoIndex].split('/').pop()}`;
             
             if(current.isVip) {
                 document.getElementById('pianoVisualizer').classList.add('show');
-                setInterval(animatePiano, 500);
             }
         }
 
@@ -1546,6 +1816,7 @@
             Object.values(audioPlayers).forEach(a => a.pause());
             current.isPaused = true;
             clearInterval(current.timerInterval);
+            stopVisualizer();
             updatePlayButtonUI();
         }
 
@@ -1555,6 +1826,7 @@
             current.isPaused = false;
             current.timeLeft = current.timer * 60;
             clearInterval(current.timerInterval);
+            stopVisualizer();
             updateTimerDisplay();
             updatePlayButtonUI();
             document.getElementById('nowPlaying').style.display = 'none';
@@ -1570,6 +1842,7 @@
                     updateTimerDisplay();
                 } else {
                     stopAll();
+                    showToast(translations[current.lang].startBtn.replace('▶️ ', '').replace('开始', '完成'));
                 }
             }, 1000);
         }
@@ -1641,18 +1914,17 @@
         }
 
         function updateVolume(type, value) {
-            if(audioPlayers[type]) audioPlayers[type].volume = value / 100;
+            const vol = value / 100;
+            if(audioPlayers[type]) audioPlayers[type].volume = vol;
         }
 
         function toggleMute() {
             const btn = document.getElementById('muteBtn');
             if(btn.textContent === '🔊') {
-                Object.values(audioPlayers).forEach(a => a.volume = 0);
+                Object.values(audioPlayers).forEach(a => a.muted = true);
                 btn.textContent = '🔇';
             } else {
-                updateVolume('piano', 60);
-                updateVolume('wave', 50);
-                updateVolume('voice', 80);
+                Object.values(audioPlayers).forEach(a => a.muted = false);
                 btn.textContent = '🔊';
             }
         }
@@ -1670,20 +1942,8 @@
             Object.values(audioPlayers).forEach(a => a.play().catch(e => console.log(e)));
             current.isPaused = false;
             startTimer();
+            startVisualizer();
             updatePlayButtonUI();
-        }
-
-        function selectTimer(minutes, isPremium) {
-            if(isPremium && !current.isVip) {
-                document.getElementById('premiumModal').style.display = 'flex';
-                return;
-            }
-            current.timer = minutes;
-            current.timeLeft = minutes * 60;
-            updateTimerDisplay();
-            document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            updateStatus();
         }
 
         function openFeedback(e) {
@@ -1705,8 +1965,13 @@
             document.getElementById('pianoVisualizer').classList.add('show');
             const t = translations[current.lang];
             document.getElementById('weeklySub').textContent = t.weeklySub.replace("升级VIP解锁", "已解锁").replace("Upgrade VIP", "Unlocked");
-            alert(`VIP Activated! ${plan} plan selected.`);
+            showToast(`VIP Activated! ${plan} plan`);
             closePremium();
+            
+            // 如果正在播放且是30/60分钟，确保计时器更新
+            if(current.isPlaying && current.timer === 15) {
+                // 保持当前播放，但用户现在可以选择更长的时长了
+            }
         }
 
         function closePremium() {
