@@ -192,7 +192,7 @@
             margin-top: 2px;
         }
 
-        /* 语言切换 - 加回这部分！ */
+        /* 语言切换 */
         .lang-switcher {
             display: flex;
             justify-content: center;
@@ -811,7 +811,7 @@
             <div class="limit-text">明日再来或升级VIP解锁全部12首钢琴曲与琴谱可视化</div>
         </div>
 
-        <!-- 语言切换 - 加回这部分！ -->
+        <!-- 语言切换 -->
         <div class="lang-switcher">
             <button class="lang-btn active" onclick="changeLang('zh')">🇨🇳 普通话</button>
             <button class="lang-btn" onclick="changeLang('hk')">🇭🇰 粤语</button>
@@ -1062,7 +1062,7 @@
                 joinBtn: "加入", roomCodeLabel: "房间号", syncText: "等待对方加入...",
                 exitBtn: "退出房间", saveCardBtn: "保存图片",
                 shareCardTitle: "专注时刻", weekFocus: "本周累计专注",
-                cardQR: "扫码一起听海"
+                cardQR: "扫码一起听海", perMin: "分钟"
             },
             hk: {
                 appName: "鋼琴海", subtitle: "聽見海洋的呼吸",
@@ -1097,7 +1097,7 @@
                 joinBtn: "加入", roomCodeLabel: "房間號", syncText: "等待對方加入...",
                 exitBtn: "退出房間", saveCardBtn: "保存圖片",
                 shareCardTitle: "專注時刻", weekFocus: "本週累計專注",
-                cardQR: "掃碼一起聽海"
+                cardQR: "掃碼一起聽海", perMin: "分鐘"
             },
             en: {
                 appName: "Piano Sea", subtitle: "Hear the Ocean's Breath",
@@ -1132,7 +1132,7 @@
                 joinBtn: "Join", roomCodeLabel: "Room Code", syncText: "Waiting for partner...",
                 exitBtn: "Exit Room", saveCardBtn: "Save Image",
                 shareCardTitle: "Focus Moment", weekFocus: "Weekly Focus Time",
-                cardQR: "Scan to listen together"
+                cardQR: "Scan to listen together", perMin: "min"
             },
             es: {
                 appName: "Piano Mar", subtitle: "Escucha el Respiro del Océano",
@@ -1167,7 +1167,7 @@
                 joinBtn: "Unirse", roomCodeLabel: "Código", syncText: "Esperando compañero...",
                 exitBtn: "Salir", saveCardBtn: "Guardar Imagen",
                 shareCardTitle: "Momento de Enfoque", weekFocus: "Tiempo Semanal",
-                cardQR: "Escanea para escuchar juntos"
+                cardQR: "Escanea para escuchar juntos", perMin: "min"
             },
             ar: {
                 appName: "بيانو سي", subtitle: "استمع إلى أنفاس المحيط",
@@ -1202,7 +1202,7 @@
                 joinBtn: "انضمام", roomCodeLabel: "رمز الغرفة", syncText: "في انتظار الشريك...",
                 exitBtn: "خروج", saveCardBtn: "حفظ الصورة",
                 shareCardTitle: "لحظة التركيز", weekFocus: "الوقت الأسبوعي",
-                cardQR: "امسح للاستماع معاً"
+                cardQR: "امسح للاستماع معاً", perMin: "د"
             }
         };
 
@@ -1353,7 +1353,7 @@
             }
         }
 
-        // 语言切换函数
+        // 语言切换函数（已修复音频切换BUG）
         function changeLang(lang) {
             current.lang = lang;
             
@@ -1450,9 +1450,23 @@
             // 阿拉伯语RTL支持
             document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
             
-            // 如果正在播放，重新加载音频
+            // 【关键修复】如果正在播放，强制切换语音音频
             if(current.isPlaying) {
-                loadAndPlayAudio();
+                // 立即停止当前语音
+                audioPlayers.voice.pause();
+                audioPlayers.voice.currentTime = 0;
+                
+                // 更新为新语言的语音文件
+                const newVoiceFile = audioConfig.voices[current.scene][current.lang];
+                audioPlayers.voice.src = newVoiceFile;
+                
+                // 重新加载并播放
+                audioPlayers.voice.load();
+                audioPlayers.voice.play().catch(e => {
+                    console.log('语音切换播放失败:', e);
+                });
+                
+                console.log('已切换语音:', newVoiceFile);
             }
         }
 
@@ -1503,11 +1517,10 @@
         }
 
         async function startPlaying() {
-            if(!audioPlayers.piano.src) {
-                audioPlayers.piano.src = audioConfig.piano[current.scene][current.currentPianoIndex];
-                audioPlayers.wave.src = audioConfig.oceans[current.ocean];
-                audioPlayers.voice.src = audioConfig.voices[current.scene][current.lang];
-            }
+            // 设置音频源（使用当前语言）
+            audioPlayers.piano.src = audioConfig.piano[current.scene][current.currentPianoIndex];
+            audioPlayers.wave.src = audioConfig.oceans[current.ocean];
+            audioPlayers.voice.src = audioConfig.voices[current.scene][current.lang];
             
             current.isPlaying = true;
             current.isPaused = false;
