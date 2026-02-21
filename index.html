@@ -871,7 +871,7 @@
             const t = translations[current.lang];
 
             try {
-                // BUG修复：确保正确获取文件路径（不使用encodeURIComponent，直接使用路径）
+                // 修复：正确获取文件路径（不使用encodeURIComponent）
                 const pianoFile = audioConfig.piano[current.scene][current.currentPianoIndex];
                 const waveFile = audioConfig.oceans[current.ocean];
                 const voiceFile = audioConfig.voices[current.scene][current.lang];
@@ -879,7 +879,7 @@
                 showDebug(`加载: ${current.scene}场景`);
                 showDebug(`语音文件: ${voiceFile}`);
 
-                // BUG修复：必须设置src属性！
+                // 修复：必须设置src属性！
                 audioPlayers.piano.src = pianoFile;
                 audioPlayers.wave.src = waveFile;
                 audioPlayers.voice.src = voiceFile;
@@ -964,7 +964,7 @@
             updateTrackInfo();
         }
 
-        // 修复后的反馈功能 - 为不同语言配置不同表单
+        // 多语言反馈表单配置（已更新为新链接）
         function openFeedback(e) {
             if(e) {
                 e.preventDefault();
@@ -978,23 +978,20 @@
                     window.open('https://wj.qq.com/s2/25778177/fb7d/', '_blank', 'noopener,noreferrer');
                     break;
                 case 'hk':
-                    // 粤语 - 腾讯问卷（繁体/粤语版，如果有的话，否则用中文版）
+                    // 粤语 - 腾讯问卷（繁体版）
                     window.open('https://wj.qq.com/s2/25778177/fb7d/', '_blank', 'noopener,noreferrer');
                     break;
                 case 'en':
-                    // 英语 - Google Forms英文版
-                    // 注意：你需要创建英文版Google表单并替换以下链接
-                    window.open('https://forms.gle/r6znYF8Pr5ffVmAv9', '_blank', 'noopener,noreferrer');
+                    // 英语 - Google Forms英文版（已更新）
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLSc3Rp_lyBrqDgJtwE-rfcVfGDdPBB7oF9MffqonLil_wn5Dhg/viewform', '_blank', 'noopener,noreferrer');
                     break;
                 case 'es':
-                    // 西班牙语 - Google Forms西语版
-                    // 注意：你需要创建西班牙语版Google表单并替换以下链接
-                    window.open('https://forms.gle/r6znYF8Pr5ffVmAv9', '_blank', 'noopener,noreferrer');
+                    // 西班牙语 - Google Forms西语版（已更新）
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLSeTsK4__l6-q1TsYYM-DMrgzbfNel9cHrVGW3ymfseWBGRE3A/viewform', '_blank', 'noopener,noreferrer');
                     break;
                 case 'ar':
-                    // 阿拉伯语 - Google Forms阿语版
-                    // 注意：你需要创建阿拉伯语版Google表单并替换以下链接
-                    window.open('https://forms.gle/r6znYF8Pr5ffVmAv9', '_blank', 'noopener,noreferrer');
+                    // 阿拉伯语 - Google Forms阿语版（已更新）
+                    window.open('https://docs.google.com/forms/d/e/1FAIpQLSd3JJLlhrHAVEn8W6ivi4ucXIrZd3l_om9SV2mEWJuLTGEPOw/viewform', '_blank', 'noopener,noreferrer');
                     break;
                 default:
                     window.open('https://wj.qq.com/s2/25778177/fb7d/', '_blank', 'noopener,noreferrer');
@@ -1155,7 +1152,7 @@
                 if (e.target === this) closePremium();
             });
 
-            showDebug('页面加载完成 - 修复版');
+            showDebug('页面加载完成 - 多语言反馈版');
         };
 
         window.onbeforeunload = () => {
