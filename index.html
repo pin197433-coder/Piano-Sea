@@ -822,25 +822,25 @@
         </div>
 
         <div class="lang-switcher">
-            <button class="lang-btn active" onclick="changeLang('zh')">🇨🇳 普通话</button>
-            <button class="lang-btn" onclick="changeLang('hk')">🇭🇰 粤语</button>
-            <button class="lang-btn" onclick="changeLang('en')">🇬🇧 English</button>
-            <button class="lang-btn" onclick="changeLang('es')">🇪🇸 Español</button>
-            <button class="lang-btn" onclick="changeLang('ar')">🇸🇦 العربية</button>
+            <button class="lang-btn active" onclick="changeLang('zh', this)">🇨🇳 普通话</button>
+            <button class="lang-btn" onclick="changeLang('hk', this)">🇭🇰 粤语</button>
+            <button class="lang-btn" onclick="changeLang('en', this)">🇬🇧 English</button>
+            <button class="lang-btn" onclick="changeLang('es', this)">🇪🇸 Español</button>
+            <button class="lang-btn" onclick="changeLang('ar', this)">🇸🇦 العربية</button>
         </div>
 
         <div class="ocean-selector">
             <div class="selector-title" id="oceanSelectorTitle">🌊 选择海域风格</div>
             <div class="wave-options">
-                <button class="wave-btn active" onclick="selectOcean('mediterranean')">
+                <button class="wave-btn active" onclick="selectOcean('mediterranean', this)">
                     <span style="font-size: 2em;">🌅</span>
                     <div style="font-size: 0.9em; margin-top: 5px;" id="ocean1Name">地中海</div>
                 </button>
-                <button class="wave-btn" onclick="selectOcean('atlantic')">
+                <button class="wave-btn" onclick="selectOcean('atlantic', this)">
                     <span style="font-size: 2em;">🌊</span>
                     <div style="font-size: 0.9em; margin-top: 5px;" id="ocean2Name">大西洋</div>
                 </button>
-                <button class="wave-btn" onclick="selectOcean('pacific')">
+                <button class="wave-btn" onclick="selectOcean('pacific', this)">
                     <span style="font-size: 2em;">🏝️</span>
                     <div style="font-size: 0.9em; margin-top: 5px;" id="ocean3Name">太平洋</div>
                 </button>
@@ -850,15 +850,15 @@
         <div class="timer-selector">
             <div class="selector-title" id="timerTitle">⏱️ 选择放松时长</div>
             <div class="timer-options">
-                <button class="time-btn active" onclick="selectTimer(15, false)">
+                <button class="time-btn active" onclick="selectTimer(15, false, this)">
                     <span id="min15">15分钟</span>
                     <span class="free-badge" id="freeBadge">免费</span>
                 </button>
-                <button class="time-btn" onclick="selectTimer(30, true)">
+                <button class="time-btn" onclick="selectTimer(30, true, this)">
                     <span id="min30">30分钟</span>
                     <span class="premium-badge">VIP</span>
                 </button>
-                <button class="time-btn" onclick="selectTimer(60, true)">
+                <button class="time-btn" onclick="selectTimer(60, true, this)">
                     <span id="min60">60分钟</span>
                     <span class="premium-badge">VIP</span>
                 </button>
@@ -866,25 +866,25 @@
         </div>
 
         <div class="scene-grid">
-            <div class="scene-card active" onclick="selectScene('anxiety')">
+            <div class="scene-card active" onclick="selectScene('anxiety', this)">
                 <span class="instant-badge" id="instantBadge1">即时</span>
                 <div class="scene-icon">🧘</div>
                 <div class="scene-title" id="scene1Name">焦虑急救</div>
                 <div class="scene-duration" id="scene1Duration">2-3分钟语音</div>
             </div>
-            <div class="scene-card" onclick="selectScene('focus')">
+            <div class="scene-card" onclick="selectScene('focus', this)">
                 <span class="instant-badge" style="display: none;" id="instantBadge2">即时</span>
                 <div class="scene-icon">🎯</div>
                 <div class="scene-title" id="scene2Name">静心专注</div>
                 <div class="scene-duration" id="scene2Duration">1分钟语音</div>
             </div>
-            <div class="scene-card" onclick="selectScene('sleep')">
+            <div class="scene-card" onclick="selectScene('sleep', this)">
                 <span class="instant-badge" style="display: none;" id="instantBadge3">即时</span>
                 <div class="scene-icon">🌙</div>
                 <div class="scene-title" id="scene3Name">睡前助眠</div>
                 <div class="scene-duration" id="scene3Duration">3-5分钟语音</div>
             </div>
-            <div class="scene-card" onclick="selectScene('nap')">
+            <div class="scene-card" onclick="selectScene('nap', this)">
                 <span class="instant-badge" style="display: none;" id="instantBadge4">即时</span>
                 <div class="scene-icon">😴</div>
                 <div class="scene-title" id="scene4Name">午休小憩</div>
@@ -1259,9 +1259,13 @@
         }
 
         function checkVipStatus() {
-            const isVip = localStorage.getItem('pianoSeaVip') === 'true';
-            if(isVip) {
-                activateVipUI();
+            try {
+                const isVip = localStorage.getItem('pianoSeaVip') === 'true';
+                if(isVip) {
+                    activateVipUI();
+                }
+            } catch(e) {
+                console.error('Error checking VIP status:', e);
             }
         }
 
@@ -1275,24 +1279,32 @@
         }
 
         function checkDailyLimit() {
-            const today = new Date().toDateString();
-            const storedDate = localStorage.getItem('pianoSeaDate');
-            if(storedDate !== today) {
-                localStorage.setItem('pianoSeaDate', today);
-                localStorage.setItem('pianoSeaDaily', '0');
-                current.dailyPlays = 0;
-            } else {
-                current.dailyPlays = parseInt(localStorage.getItem('pianoSeaDaily')) || 0;
-            }
-            if(current.dailyPlays >= 3 && !current.isVip) {
-                document.getElementById('dailyLimitBox').classList.add('show');
+            try {
+                const today = new Date().toDateString();
+                const storedDate = localStorage.getItem('pianoSeaDate');
+                if(storedDate !== today) {
+                    localStorage.setItem('pianoSeaDate', today);
+                    localStorage.setItem('pianoSeaDaily', '0');
+                    current.dailyPlays = 0;
+                } else {
+                    current.dailyPlays = parseInt(localStorage.getItem('pianoSeaDaily')) || 0;
+                }
+                if(current.dailyPlays >= 3 && !current.isVip) {
+                    document.getElementById('dailyLimitBox').classList.add('show');
+                }
+            } catch(e) {
+                console.error('Error checking daily limit:', e);
             }
         }
 
         function incrementDailyPlay() {
             if(current.isVip) return;
             current.dailyPlays++;
-            localStorage.setItem('pianoSeaDaily', current.dailyPlays);
+            try {
+                localStorage.setItem('pianoSeaDaily', current.dailyPlays);
+            } catch(e) {
+                console.error('Error saving daily plays:', e);
+            }
             if(current.dailyPlays >= 3) {
                 document.getElementById('dailyLimitBox').classList.add('show');
             }
@@ -1321,13 +1333,17 @@
             const key = input.value.trim();
             
             if(!key || key.length < 8) {
-                alert('请输入有效的激活码');
+                alert('请输入有效的激活码（至少8位字符）');
                 return;
             }
             
-            localStorage.setItem('pianoSeaLicense', key);
-            localStorage.setItem('pianoSeaVip', 'true');
-            localStorage.setItem('pianoSeaActivateDate', new Date().toISOString());
+            try {
+                localStorage.setItem('pianoSeaLicense', key);
+                localStorage.setItem('pianoSeaVip', 'true');
+                localStorage.setItem('pianoSeaActivateDate', new Date().toISOString());
+            } catch(e) {
+                console.error('Error saving VIP status:', e);
+            }
             
             activateVipUI();
             input.value = '';
@@ -1337,68 +1353,105 @@
             closePremium();
         }
 
-        function changeLang(lang) {
+        function changeLang(lang, btnElement) {
             if(current.lang === lang) return;
             current.lang = lang;
+            
             document.querySelectorAll('.lang-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+            
             updateAllUI();
             
             if(current.isPlaying && !current.isPaused) {
                 const newVoiceFile = audioConfig.voices[current.scene][current.lang];
-                audioPlayers.voice.src = newVoiceFile;
-                audioPlayers.voice.load();
-                audioPlayers.voice.play().catch(e => console.log(e));
+                if(newVoiceFile && audioPlayers.voice) {
+                    audioPlayers.voice.src = newVoiceFile;
+                    audioPlayers.voice.load();
+                    audioPlayers.voice.play().catch(e => console.log(e));
+                }
             }
             document.body.style.direction = lang === 'ar' ? 'rtl' : 'ltr';
         }
 
-        function selectScene(scene) {
+        function selectScene(scene, cardElement) {
             if(current.scene === scene) return;
             current.scene = scene;
             
+            document.querySelectorAll('.scene-card').forEach(card => card.classList.remove('active'));
+            if(cardElement) {
+                cardElement.classList.add('active');
+            }
+            
             const scenes = ['anxiety', 'focus', 'sleep', 'nap'];
-            document.querySelectorAll('.scene-card').forEach((card, idx) => {
-                card.classList.toggle('active', scenes[idx] === scene);
+            scenes.forEach((s, idx) => {
+                const badge = document.getElementById(`instantBadge${idx + 1}`);
+                if(badge) {
+                    badge.style.display = s === scene ? 'block' : 'none';
+                }
             });
             
             if(current.isPlaying && !current.isPaused) {
                 current.currentPianoIndex = Math.floor(Math.random() * 3);
-                audioPlayers.piano.src = audioConfig.piano[scene][current.currentPianoIndex];
-                audioPlayers.voice.src = audioConfig.voices[scene][current.lang];
-                audioPlayers.piano.load();
-                audioPlayers.voice.load();
-                audioPlayers.piano.play().catch(e => console.log(e));
-                audioPlayers.voice.play().catch(e => console.log(e));
+                const newPiano = audioConfig.piano[scene][current.currentPianoIndex];
+                const newVoice = audioConfig.voices[scene][current.lang];
+                
+                if(newPiano && audioPlayers.piano) {
+                    audioPlayers.piano.src = newPiano;
+                    audioPlayers.piano.load();
+                    audioPlayers.piano.play().catch(e => console.log(e));
+                }
+                if(newVoice && audioPlayers.voice) {
+                    audioPlayers.voice.src = newVoice;
+                    audioPlayers.voice.load();
+                    audioPlayers.voice.play().catch(e => console.log(e));
+                }
             }
             updateStatus();
         }
 
-        function selectOcean(ocean) {
+        function selectOcean(ocean, btnElement) {
             if(current.ocean === ocean) return;
             current.ocean = ocean;
+            
             document.querySelectorAll('.wave-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
             
             if(current.isPlaying && !current.isPaused) {
-                audioPlayers.wave.src = audioConfig.oceans[ocean];
-                audioPlayers.wave.load();
-                audioPlayers.wave.play().catch(e => console.log(e));
+                const newWave = audioConfig.oceans[ocean];
+                if(newWave && audioPlayers.wave) {
+                    audioPlayers.wave.src = newWave;
+                    audioPlayers.wave.load();
+                    audioPlayers.wave.play().catch(e => console.log(e));
+                }
             }
             updateStatus();
         }
 
-        function selectTimer(minutes, isPremium) {
+        // 【核心修复】严格检查VIP状态，显式传递按钮元素
+        function selectTimer(minutes, isPremium, btnElement) {
+            console.log('Select timer:', minutes, 'isPremium:', isPremium, 'current.isVip:', current.isVip);
+            
             if(isPremium && !current.isVip) {
+                console.log('VIP required, showing premium modal');
                 document.getElementById('premiumModal').style.display = 'flex';
                 return;
             }
+            
             document.querySelectorAll('.time-btn').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
+            if(btnElement) {
+                btnElement.classList.add('active');
+            }
+            
             current.timer = minutes;
             current.timeLeft = minutes * 60;
             updateTimerDisplay();
             updateStatus();
+            
+            showToast(`已选择 ${minutes} 分钟`);
         }
 
         function updateAllUI() {
@@ -1451,21 +1504,25 @@
         }
 
         async function startPlaying() {
-            audioPlayers.piano.src = audioConfig.piano[current.scene][current.currentPianoIndex];
-            audioPlayers.wave.src = audioConfig.oceans[current.ocean];
-            audioPlayers.voice.src = audioConfig.voices[current.scene][current.lang];
+            const pianoTrack = audioConfig.piano[current.scene][current.currentPianoIndex];
+            const waveTrack = audioConfig.oceans[current.ocean];
+            const voiceTrack = audioConfig.voices[current.scene][current.lang];
+            
+            if(pianoTrack) audioPlayers.piano.src = pianoTrack;
+            if(waveTrack) audioPlayers.wave.src = waveTrack;
+            if(voiceTrack) audioPlayers.voice.src = voiceTrack;
             
             current.isPlaying = true;
             current.isPaused = false;
             
             try {
                 await Promise.all([
-                    audioPlayers.piano.play(),
-                    audioPlayers.wave.play(),
-                    audioPlayers.voice.play()
+                    audioPlayers.piano.play().catch(e => console.log('Piano play error:', e)),
+                    audioPlayers.wave.play().catch(e => console.log('Wave play error:', e)),
+                    audioPlayers.voice.play().catch(e => console.log('Voice play error:', e))
                 ]);
             } catch(e) {
-                console.log('音频播放失败:', e);
+                console.log('Audio play error:', e);
             }
             
             startTimer();
@@ -1475,7 +1532,7 @@
         }
 
         function pauseAll() {
-            Object.values(audioPlayers).forEach(a => a.pause());
+            Object.values(audioPlayers).forEach(a => { if(a) a.pause(); });
             current.isPaused = true;
             clearInterval(current.timerInterval);
             stopVisualizer();
@@ -1483,7 +1540,9 @@
         }
 
         function stopAll() {
-            Object.values(audioPlayers).forEach(a => { a.pause(); a.currentTime = 0; });
+            Object.values(audioPlayers).forEach(a => { 
+                if(a) { a.pause(); a.currentTime = 0; }
+            });
             current.isPlaying = false;
             current.isPaused = false;
             current.timeLeft = current.timer * 60;
@@ -1542,13 +1601,9 @@
 
         function toggleMute() {
             const btn = document.getElementById('muteBtn');
-            if(btn.textContent === '🔊') {
-                Object.values(audioPlayers).forEach(a => a.muted = true);
-                btn.textContent = '🔇';
-            } else {
-                Object.values(audioPlayers).forEach(a => a.muted = false);
-                btn.textContent = '🔊';
-            }
+            const isMuted = btn.textContent === '🔇';
+            Object.values(audioPlayers).forEach(a => { if(a) a.muted = !isMuted; });
+            btn.textContent = isMuted ? '🔊' : '🔇';
         }
 
         function togglePlay() {
@@ -1561,7 +1616,7 @@
         }
 
         function resumeAll() {
-            Object.values(audioPlayers).forEach(a => a.play().catch(e => console.log(e)));
+            Object.values(audioPlayers).forEach(a => { if(a) a.play().catch(e => console.log(e)); });
             current.isPaused = false;
             startTimer();
             startVisualizer();
